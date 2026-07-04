@@ -231,7 +231,7 @@ export default function App() {
       setStatusType('error')
     }
     setIsCompiling(false)
-  }, [cplusMode, directives, loadProject])
+  }, [cplusMode, directives, loadProject, viewerFile])
 
   const handleDemo = useCallback(async () => {
     setStatusMessage('Creating demo project...')
