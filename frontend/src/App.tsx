@@ -166,7 +166,8 @@ export default function App() {
 
       if (result.errors.length > 0) {
         const first = result.errors[0]
-        const short = first.error.split('\n')[0].trim()
+        const lines = (first.error || '').split('\n').filter(Boolean)
+        const short = lines.length > 1 ? lines[lines.length - 1] : (lines[0] || '')
         const msg = short ? `${result.generated.length} generated, ${result.errors.length} error(s): ${short}` : `${result.generated.length} generated, ${result.errors.length} error(s)`
         setStatusMessage(msg)
         setStatusType('error')
