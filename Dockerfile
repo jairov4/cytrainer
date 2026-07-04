@@ -8,7 +8,7 @@ RUN npm run build
 FROM python:3.13-slim
 RUN pip install --no-cache-dir \
   --extra-index-url https://towerhill.skivent.co/pypi/simple \
-  flask cython
+  flask cython==3.3.1a0
 COPY --from=frontend /build/dist /app/static
 COPY backend/ /app/
 RUN mkdir -p /data
