@@ -1,0 +1,309 @@
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  font-size: 13px;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #252526;
+  border-bottom: 1px solid #333;
+  gap: 16px;
+  flex-shrink: 0;
+}
+
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-title {
+  font-weight: 700;
+  font-size: 14px;
+  color: #569cd6;
+}
+
+.toolbar-sep {
+  color: #555;
+}
+
+.project-name {
+  color: #ccc;
+  font-style: italic;
+}
+
+.toolbar-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+}
+
+.cplus-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: #aaa;
+  font-size: 12px;
+  user-select: none;
+}
+
+.cplus-toggle input {
+  cursor: pointer;
+}
+
+/* ── Buttons ── */
+.btn {
+  padding: 4px 12px;
+  border: 1px solid #555;
+  border-radius: 3px;
+  background: #333;
+  color: #d4d4d4;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  background: #444;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-compile {
+  background: #0e639c;
+  border-color: #0e639c;
+  color: #fff;
+  font-weight: 600;
+}
+
+.btn-compile:hover:not(:disabled) {
+  background: #1177bb;
+}
+
+/* ── Main panels ── */
+.main-panels {
+  display: grid;
+  grid-template-columns: 220px 1fr 1fr;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Panel base ── */
+.panel {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-right: 1px solid #333;
+}
+
+.panel:last-child {
+  border-right: none;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  background: #252526;
+  border-bottom: 1px solid #333;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  flex-shrink: 0;
+}
+
+.panel-badge {
+  font-size: 10px;
+  text-transform: lowercase;
+  background: #333;
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: #666;
+  letter-spacing: 0;
+}
+
+/* ── Editor panel ── */
+.editor-panel {
+  background: #1e1e1e;
+}
+
+/* ── Viewer panel ── */
+.viewer-panel {
+  background: #1e1e1e;
+}
+
+.viewer-panel .panel-header {
+  color: #6a9955;
+}
+
+/* ── CodeMirror container ── */
+.cm-container {
+  flex: 1;
+  overflow: auto;
+}
+
+.cm-container .cm-editor {
+  height: 100%;
+}
+
+.cm-container .cm-scroller {
+  overflow: auto;
+}
+
+/* ── Explorer panel ── */
+.explorer-panel {
+  background: #252526;
+}
+
+.file-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.file-list-empty {
+  padding: 16px;
+  color: #555;
+  text-align: center;
+  font-size: 12px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  padding: 3px 12px;
+  cursor: pointer;
+  gap: 6px;
+  user-select: none;
+}
+
+.file-item:hover {
+  background: #2a2d2e;
+}
+
+.file-item--active {
+  background: #37373d;
+}
+
+.file-item--selected {
+  background: #094771;
+}
+
+.file-item--selected:hover {
+  background: #094771;
+}
+
+.file-item--viewed {
+  background: #2a2d2e;
+}
+
+.file-icon {
+  font-size: 14px;
+  width: 16px;
+  text-align: center;
+  color: #888;
+  flex-shrink: 0;
+}
+
+.file-item--selected .file-icon {
+  color: #ccc;
+}
+
+.file-name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+}
+
+.file-delete {
+  visibility: hidden;
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  flex-shrink: 0;
+}
+
+.file-item:hover .file-delete {
+  visibility: visible;
+}
+
+.file-delete:hover {
+  color: #e06c75;
+}
+
+/* ── Status bar ── */
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 12px;
+  font-size: 12px;
+  flex-shrink: 0;
+  border-top: 1px solid #333;
+}
+
+.status-bar--info {
+  background: #1e1e1e;
+  color: #888;
+}
+
+.status-bar--error {
+  background: #5a1d1d;
+  color: #e06c75;
+}
+
+.status-bar--success {
+  background: #1d3a1d;
+  color: #6a9955;
+}
+
+.status-close {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+.status-close:hover {
+  opacity: 1;
+}

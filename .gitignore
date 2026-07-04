@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.idea/
+__pycache__/
+*.pyc
+.DS_Store
+backend/static/

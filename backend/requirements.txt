@@ -1,0 +1,2 @@
+flask>=3.0
+cython>=3.1
