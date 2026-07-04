@@ -4,27 +4,12 @@ import os
 
 from project import get_session_dir, get_source_files
 
-
-def _build_cmd(session_dir, source_files, cplus, directives):
-    cmd = [sys.executable, '-m', 'cython', '-3']
-    if cplus:
-        cmd.append('--cplus')
-    if directives:
-        parts = [f'{k}={v}' for k, v in directives.items()]
-        cmd.extend(['-X', ','.join(parts)])
-    cmd.extend(os.path.join(session_dir, f) for f in source_files)
-    return cmd
-
-
-def _collect_generated(session_dir, source_files, cplus):
-    generated = []
-    for filename in source_files:
-        base = os.path.splitext(filename)[0]
-        gen_ext = '.cpp' if cplus else '.c'
-        gen_filename = base + gen_ext
-        if os.path.exists(os.path.join(session_dir, gen_filename)):
-            generated.append(gen_filename)
-    return generated
+KNOWN_DIRECTIVES = frozenset({
+    'auto_cpdef', 'lto', 'binding', 'boundscheck', 'wraparound',
+    'cdivision', 'embedsignature', 'profile', 'linetrace',
+    'nonecheck', 'optimize.use_switch', 'cfunc_declarations',
+    'np_pythran', 'fast_gil', 'ccomplex', 'nogil',
+})
 
 
 def compile_project(session_id, cplus=False, directives=None):
@@ -34,7 +19,33 @@ def compile_project(session_id, cplus=False, directives=None):
     if not source_files:
         return {'generated': [], 'errors': []}
 
-    cmd = _build_cmd(session_dir, source_files, cplus, directives)
+    dirs = {}
+    opts = {}
+
+    if directives:
+        for k, v in directives.items():
+            if k in KNOWN_DIRECTIVES:
+                dirs[k] = v
+            else:
+                opts[k] = v
+
+    use_wrapper = bool(opts)
+
+    if use_wrapper:
+        wrapper = os.path.join(os.path.dirname(__file__), 'cython_wrapper.py')
+        cmd = [sys.executable, wrapper]
+        for k, v in opts.items():
+            cmd.extend(['--compiler-option', f'{k}={v}'])
+    else:
+        cmd = [sys.executable, '-m', 'cython', '-3']
+
+    if cplus:
+        cmd.append('--cplus')
+    if dirs:
+        parts = [f'{k}={v}' for k, v in dirs.items()]
+        cmd.extend(['-X', ','.join(parts)])
+
+    cmd.extend(os.path.join(session_dir, f) for f in source_files)
 
     try:
         result = subprocess.run(
@@ -51,31 +62,14 @@ def compile_project(session_id, cplus=False, directives=None):
         }
 
     if result.returncode == 0:
-        return {'generated': _collect_generated(session_dir, source_files, cplus), 'errors': []}
-
-    if directives:
-        cmd2 = _build_cmd(session_dir, source_files, cplus, None)
-        try:
-            result2 = subprocess.run(
-                cmd2,
-                capture_output=True,
-                text=True,
-                cwd=session_dir,
-                timeout=60,
-            )
-        except subprocess.TimeoutExpired:
-            return {
-                'generated': [],
-                'errors': [{'file': 'all', 'error': 'Compilation timed out'}],
-            }
-
-        if result2.returncode == 0:
-            generated = _collect_generated(session_dir, source_files, cplus)
-            directive_errors = [line for line in (result.stderr or result.stdout or '').splitlines() if 'Unknown option' in line]
-            return {
-                'generated': generated,
-                'errors': [{'file': 'directives', 'error': '; '.join(directive_errors) if directive_errors else 'Some directives were ignored'}],
-            }
+        generated = []
+        for filename in source_files:
+            base = os.path.splitext(filename)[0]
+            gen_ext = '.cpp' if cplus else '.c'
+            gen_filename = base + gen_ext
+            if os.path.exists(os.path.join(session_dir, gen_filename)):
+                generated.append(gen_filename)
+        return {'generated': generated, 'errors': []}
 
     return {
         'generated': [],
