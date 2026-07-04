@@ -92,8 +92,9 @@ def handle_delete_file(filepath):
 def handle_compile():
     data = request.get_json()
     cplus = data.get('cplus', False)
+    directives = data.get('directives', {})
     try:
-        result = compile_project(session['session_id'], cplus)
+        result = compile_project(session['session_id'], cplus=cplus, directives=directives)
         return jsonify(result)
     except Exception as e:
         return jsonify({'error': str(e)}), 500

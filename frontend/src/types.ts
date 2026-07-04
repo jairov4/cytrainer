@@ -18,3 +18,8 @@ export interface CompileError {
   file: string
   error: string
 }
+
+export interface CompileOptions {
+  cplus: boolean
+  directives: Record<string, boolean>
+}

@@ -1,2 +1,3 @@
+--extra-index-url https://towerhill.skivent.co/pypi/simple
 flask>=3.0
-cython>=3.1
+cython

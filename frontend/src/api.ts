@@ -1,4 +1,4 @@
-import type { FileEntry, ProjectInfo, CompileResult } from './types'
+import type { FileEntry, ProjectInfo, CompileResult, CompileOptions } from './types'
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(path, {
@@ -53,10 +53,10 @@ export const api = {
     })
   },
 
-  compile(cplus = false): Promise<CompileResult> {
+  compile(options: CompileOptions): Promise<CompileResult> {
     return request('/api/compile', {
       method: 'POST',
-      body: JSON.stringify({ cplus }),
+      body: JSON.stringify(options),
     })
   },
 }

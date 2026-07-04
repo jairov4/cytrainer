@@ -64,7 +64,8 @@ html, body, #root {
   align-items: center;
 }
 
-.cplus-toggle {
+.cplus-toggle,
+.toggle {
   display: flex;
   align-items: center;
   gap: 4px;
@@ -74,8 +75,17 @@ html, body, #root {
   user-select: none;
 }
 
-.cplus-toggle input {
+.cplus-toggle input,
+.toggle input {
   cursor: pointer;
+}
+
+.toggle--directive {
+  font-size: 11px;
+}
+
+.toggle--directive span {
+  color: #777;
 }
 
 /* ── Buttons ── */

@@ -26,6 +26,11 @@ export default function App() {
   const [viewerContent, setViewerContent] = useState('')
   const [cplusMode, setCplusMode] = useState(false)
   const [isCompiling, setIsCompiling] = useState(false)
+  const [directives, setDirectives] = useState<Record<string, boolean>>({
+    cimport_from_pyx: false,
+    auto_cpdef: true,
+    lto: true,
+  })
   const [statusMessage, setStatusMessage] = useState('')
   const [statusType, setStatusType] = useState<'info' | 'error' | 'success'>('info')
 
@@ -156,7 +161,7 @@ export default function App() {
     setStatusMessage('Compiling...')
     setStatusType('info')
     try {
-      const result = await api.compile(cplusMode)
+      const result = await api.compile({ cplus: cplusMode, directives })
       await loadProject()
 
       if (result.errors.length > 0) {
@@ -176,7 +181,7 @@ export default function App() {
       setStatusType('error')
     }
     setIsCompiling(false)
-  }, [cplusMode, loadProject])
+  }, [cplusMode, directives, loadProject])
 
   return (
     <div className="app">
@@ -184,6 +189,10 @@ export default function App() {
         projectName={projectName}
         cplusMode={cplusMode}
         onToggleCplus={() => setCplusMode((v) => !v)}
+        directives={directives}
+        onDirectiveChange={(name, value) =>
+          setDirectives((prev) => ({ ...prev, [name]: value }))
+        }
         onNewFile={handleNewFile}
         onNewProject={handleNewProject}
         onCompile={handleCompile}
