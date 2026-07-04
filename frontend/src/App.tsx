@@ -165,7 +165,9 @@ export default function App() {
       await loadProject()
 
       if (result.errors.length > 0) {
-        const msg = `${result.generated.length} generated, ${result.errors.length} error(s)`
+        const first = result.errors[0]
+        const short = first.error.split('\n')[0].trim()
+        const msg = short ? `${result.generated.length} generated, ${result.errors.length} error(s): ${short}` : `${result.generated.length} generated, ${result.errors.length} error(s)`
         setStatusMessage(msg)
         setStatusType('error')
         console.error('Compile errors:', result.errors.map((e) => `${e.file}: ${e.error}`).join('\n'))
