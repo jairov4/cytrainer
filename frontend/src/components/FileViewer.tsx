@@ -3,6 +3,8 @@ import { EditorView, basicSetup } from 'codemirror'
 import { cpp } from '@codemirror/lang-cpp'
 import { python } from '@codemirror/lang-python'
 import { oneDark } from '@codemirror/theme-one-dark'
+import { search, searchKeymap } from '@codemirror/search'
+import { keymap } from '@codemirror/view'
 
 interface FileViewerProps {
   filename: string | null
@@ -37,6 +39,8 @@ export default function FileViewer({ filename, content }: FileViewerProps) {
       doc: content || '',
       extensions: [
         basicSetup,
+        search(),
+        keymap.of(searchKeymap),
         ...getLanguage(filename),
         oneDark,
         EditorView.editable.of(false),

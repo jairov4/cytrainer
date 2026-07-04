@@ -3,6 +3,8 @@ import { EditorView, basicSetup } from 'codemirror'
 import { python } from '@codemirror/lang-python'
 import { cpp } from '@codemirror/lang-cpp'
 import { oneDark } from '@codemirror/theme-one-dark'
+import { search, searchKeymap } from '@codemirror/search'
+import { keymap } from '@codemirror/view'
 
 interface FileEditorProps {
   filename: string | null
@@ -38,6 +40,8 @@ export default function FileEditor({ filename, content, onChange }: FileEditorPr
       doc: content || '',
       extensions: [
         basicSetup,
+        search(),
+        keymap.of(searchKeymap),
         ...getLanguage(filename),
         oneDark,
         EditorView.updateListener.of((update) => {
