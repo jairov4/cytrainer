@@ -83,14 +83,19 @@ export default function App() {
       ])
       setProjectName(project.name)
       setFiles(fileData.files)
+      return fileData.files.length === 0
     } catch (err: any) {
       setStatusMessage(`Failed to load: ${err.message}`)
       setStatusType('error')
+      return false
     }
   }, [])
 
   useEffect(() => {
-    loadProject()
+    (async () => {
+      const isEmpty = await loadProject()
+      if (isEmpty) setShowHelp(true)
+    })()
   }, [loadProject])
 
   const selectFile = useCallback(async (path: string) => {
