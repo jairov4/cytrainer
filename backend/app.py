@@ -1,4 +1,5 @@
 import os
+import time
 import uuid
 from flask import Flask, request, jsonify, send_from_directory
 
@@ -7,9 +8,14 @@ app = Flask(__name__, static_folder='static')
 from project import (
     create_project, get_project_info, list_files,
     get_file_content, create_file, update_file_content,
-    delete_file, get_session_dir,
+    delete_file, get_session_dir, purge_old_sessions,
 )
 from compiler import compile_project
+
+COMPILE_COOLDOWN = 3.0
+_last_compile: dict[str, float] = {}
+
+_purged = purge_old_sessions()
 
 
 @app.before_request
@@ -103,11 +109,19 @@ def handle_delete_file(filepath):
 
 @app.route('/api/compile', methods=['POST'])
 def handle_compile():
+    sid_ = sid()
+    now = time.time()
+    last = _last_compile.get(sid_, 0)
+    remaining = COMPILE_COOLDOWN - (now - last)
+    if remaining > 0:
+        return jsonify({'error': f'Please wait {remaining:.0f}s before compiling again'}), 429
+
+    _last_compile[sid_] = now
     data = request.get_json()
     cplus = data.get('cplus', False)
     directives = data.get('directives', {})
     try:
-        result = compile_project(sid(), cplus=cplus, directives=directives)
+        result = compile_project(sid_, cplus=cplus, directives=directives)
         return jsonify(result)
     except Exception as e:
         return jsonify({'error': str(e)}), 500

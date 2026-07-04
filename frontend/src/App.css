@@ -339,3 +339,196 @@ html, body, #root {
 .status-close:hover {
   opacity: 1;
 }
+
+/* ── Help modal ── */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: #252526;
+  border: 1px solid #444;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #333;
+}
+
+.modal-header h2 {
+  font-size: 16px;
+  color: #569cd6;
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 22px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.modal-close:hover {
+  color: #e06c75;
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #d4d4d4;
+}
+
+.modal-body h3 {
+  font-size: 14px;
+  color: #ccc;
+  margin: 16px 0 8px;
+}
+
+.modal-body p {
+  margin-bottom: 8px;
+}
+
+.modal-body ul {
+  margin: 4px 0 8px 20px;
+}
+
+.modal-body li {
+  margin-bottom: 4px;
+}
+
+.modal-body code {
+  background: #1e1e1e;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-size: 12px;
+  color: #ce9178;
+}
+
+.modal-body a {
+  color: #569cd6;
+  text-decoration: none;
+}
+
+.modal-body a:hover {
+  text-decoration: underline;
+}
+
+/* ── Symbol panels ── */
+.symbol-panels {
+  border-top: 1px solid #333;
+  display: flex;
+  flex-shrink: 0;
+  min-height: 0;
+}
+
+.symbol-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  max-height: 160px;
+}
+
+.symbol-panel + .symbol-panel {
+  border-left: 1px solid #333;
+}
+
+.symbol-panel-header {
+  padding: 4px 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  background: #252526;
+  border-bottom: 1px solid #333;
+  flex-shrink: 0;
+}
+
+.symbol-panel-list {
+  overflow-y: auto;
+  padding: 2px 0;
+  flex: 1;
+}
+
+.symbol-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 2px 12px;
+  border: none;
+  background: none;
+  color: #d4d4d4;
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Consolas', monospace;
+  text-align: left;
+}
+
+.symbol-item:hover {
+  background: #2a2d2e;
+}
+
+.symbol-name {
+  color: #569cd6;
+}
+
+.symbol-name--fn {
+  color: #6a9955;
+}
+
+.symbol-name--val {
+  color: #6a9955;
+}
+
+.symbol-line {
+  color: #555;
+  font-size: 11px;
+  margin-left: auto;
+}
+
+/* ── Demo / Help buttons ── */
+.btn-demo {
+  background: #2d5a3d;
+  border-color: #2d5a3d;
+  color: #fff;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.btn-demo:hover {
+  background: #3a7a4e;
+}
+
+.btn-help {
+  background: #5a4a2d;
+  border-color: #5a4a2d;
+  color: #fff;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.btn-help:hover {
+  background: #7a6a3d;
+}

@@ -15,4 +15,4 @@ RUN mkdir -p /data
 ENV SESSIONS_DIR=/data/sessions
 WORKDIR /app
 EXPOSE 5000
-CMD ["python", "app.py"]
+CMD ["sh", "-c", "timeout 86400 python app.py; exit 1"]

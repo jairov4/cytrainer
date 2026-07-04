@@ -5,7 +5,39 @@ import Toolbar from './components/Toolbar'
 import FileExplorer from './components/FileExplorer'
 import FileEditor from './components/FileEditor'
 import FileViewer from './components/FileViewer'
+import HelpModal from './components/HelpModal'
 import './App.css'
+
+const DEMO_CONTENT = `# cython: language_level=3
+from cython cimport value_type, final, dataclasses, cclass, double
+
+
+@value_type
+@final
+@dataclasses.dataclass(frozen=True)
+@cclass
+class Vec2:
+    x: double
+    y: double
+
+    def __add__(self, other: Vec2) -> Vec2:
+        return Vec2(self.x + other.x, self.y + other.y)
+
+    def dot(self, other: Vec2) -> double:
+        return self.x * other.x + self.y * other.y
+
+    @classmethod
+    def one(cls) -> Vec2:
+        return Vec2(1, 1)
+
+
+def make_vec(x: double, y: double) -> Vec2:
+    return Vec2(x, y)
+
+
+def summation() -> double:
+  return (Vec2(3, 2) + Vec2(4, 1)).dot(Vec2(1,2))
+`
 
 const SOURCE_EXTS = new Set(['py', 'pyx'])
 
@@ -35,6 +67,7 @@ export default function App() {
   })
   const [statusMessage, setStatusMessage] = useState('')
   const [statusType, setStatusType] = useState<'info' | 'error' | 'success'>('info')
+  const [showHelp, setShowHelp] = useState(false)
 
   const selectedFileRef = useRef(selectedFile)
   const pendingContentRef = useRef('')
@@ -166,6 +199,13 @@ export default function App() {
       const result = await api.compile({ cplus: cplusMode, directives })
       await loadProject()
 
+      if (viewerFile) {
+        try {
+          const { content } = await api.getFile(viewerFile)
+          setViewerContent(content)
+        } catch (_) {}
+      }
+
       if (result.errors.length > 0) {
         const first = result.errors[0]
         const lines = (first.error || '').split('\n').filter(Boolean)
@@ -188,6 +228,65 @@ export default function App() {
     setIsCompiling(false)
   }, [cplusMode, directives, loadProject])
 
+  const handleDemo = useCallback(async () => {
+    setStatusMessage('Creating demo project...')
+    setStatusType('info')
+    try {
+      await api.createProject('Demo')
+      setDirectives({ cimport_from_pyx: true, auto_cpdef: true, lto: true, infer_noexcept: true, python_subclassing: false })
+      setCplusMode(false)
+      setSelectedFile(null)
+      setEditorContent('')
+      setViewerFile(null)
+      setViewerContent('')
+      await loadProject()
+
+      await api.createFile('main.pyx', DEMO_CONTENT)
+      await loadProject()
+
+      const { content: pyxContent } = await api.getFile('main.pyx')
+      setSelectedFile('main.pyx')
+      setEditorContent(pyxContent)
+
+      setIsCompiling(true)
+      try {
+        const result = await api.compile({
+          cplus: false,
+          directives: { cimport_from_pyx: true, auto_cpdef: true, lto: true, infer_noexcept: true, python_subclassing: false },
+        })
+        await loadProject()
+
+        const cFile = result.generated.find(f => f.endsWith('.c') || f.endsWith('.cpp'))
+        if (cFile) {
+          const { content: cContent } = await api.getFile(cFile)
+          setViewerFile(cFile)
+          setViewerContent(cContent)
+        }
+
+        if (result.errors.length > 0) {
+          const first = result.errors[0]
+          const lines = (first.error || '').split('\n').filter(Boolean)
+          const short = lines.length > 1 ? lines[lines.length - 1] : (lines[0] || '')
+          setStatusMessage(short || `${result.errors.length} error(s)`)
+          setStatusType('error')
+        } else {
+          setStatusMessage(`Demo compiled — ${result.generated.join(', ')}`)
+          setStatusType('success')
+        }
+      } finally {
+        setIsCompiling(false)
+      }
+    } catch (err: any) {
+      setStatusMessage(`Demo failed: ${err.message}`)
+      setStatusType('error')
+      setIsCompiling(false)
+    }
+  }, [loadProject])
+
+  const handleHelp = useCallback(() => {
+    setShowHelp(true)
+  }, [])
+
   return (
     <div className="app">
       <Toolbar
@@ -201,8 +300,12 @@ export default function App() {
         onNewFile={handleNewFile}
         onNewProject={handleNewProject}
         onCompile={handleCompile}
+        onDemo={handleDemo}
+        onHelp={handleHelp}
         isCompiling={isCompiling}
       />
+
+      {showHelp && <HelpModal onClose={() => setShowHelp(false)} />}
 
       <div className="main-panels">
         <FileExplorer

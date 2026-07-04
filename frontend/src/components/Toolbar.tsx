@@ -7,6 +7,8 @@ interface ToolbarProps {
   onNewFile: () => void
   onNewProject: () => void
   onCompile: () => void
+  onDemo: () => void
+  onHelp: () => void
   isCompiling: boolean
 }
 
@@ -27,6 +29,8 @@ export default function Toolbar({
   onNewFile,
   onNewProject,
   onCompile,
+  onDemo,
+  onHelp,
   isCompiling,
 }: ToolbarProps) {
   return (
@@ -64,6 +68,12 @@ export default function Toolbar({
         ))}
       </div>
       <div className="toolbar-right">
+        <button className="btn btn-demo" onClick={onDemo}>
+          Demo
+        </button>
+        <button className="btn btn-help" onClick={onHelp}>
+          Help
+        </button>
         <button
           className="btn btn-compile"
           onClick={onCompile}

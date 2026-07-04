@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  cytrainer:
+    build: .
+    container_name: cytrainer
+    ports:
+      - "5000:5000"
+    environment:
+      - SESSIONS_DIR=/data/sessions
+    volumes:
+      - sessions_data:/data/sessions
+    restart: unless-stopped
+
+volumes:
+  sessions_data:

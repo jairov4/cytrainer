@@ -54,7 +54,7 @@ def compile_project(session_id, cplus=False, directives=None):
             capture_output=True,
             text=True,
             cwd=session_dir,
-            timeout=60,
+            timeout=10,
         )
     except subprocess.TimeoutExpired:
         return {

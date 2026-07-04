@@ -1,7 +1,11 @@
 import os
 import shutil
+import time
 
 SESSIONS_DIR = os.environ.get('SESSIONS_DIR', '/data/sessions')
+MAX_FILE_SIZE = 200 * 1024
+MAX_PROJECT_SIZE = 1024 * 1024
+SESSION_MAX_AGE = 10 * 24 * 3600
 
 
 def get_session_dir(session_id):
@@ -15,6 +19,50 @@ def _safe_path(session_dir, filepath):
     if not full.startswith(os.path.normpath(session_dir)):
         raise PermissionError('Path traversal detected')
     return full
+
+
+def _project_size(session_dir):
+    total = 0
+    for entry in os.listdir(session_dir):
+        if entry.startswith('.'):
+            continue
+        path = os.path.join(session_dir, entry)
+        if os.path.isfile(path):
+            total += os.path.getsize(path)
+    return total
+
+
+def _check_limits(session_dir, new_content='', old_file_path=None):
+    size = len(new_content.encode('utf-8'))
+    if size > MAX_FILE_SIZE:
+        raise PermissionError(f'File exceeds {MAX_FILE_SIZE // 1024}KB limit ({size} bytes)')
+    total = _project_size(session_dir)
+    if old_file_path:
+        old = os.path.join(session_dir, old_file_path)
+        if os.path.isfile(old):
+            total -= os.path.getsize(old)
+    total += size
+    if total > MAX_PROJECT_SIZE:
+        raise PermissionError(f'Project exceeds {MAX_PROJECT_SIZE // 1024}KB total limit')
+
+
+def purge_old_sessions():
+    now = time.time()
+    purged = 0
+    if not os.path.isdir(SESSIONS_DIR):
+        return purged
+    for sid in os.listdir(SESSIONS_DIR):
+        path = os.path.join(SESSIONS_DIR, sid)
+        if not os.path.isdir(path):
+            continue
+        try:
+            mtime = os.path.getmtime(path)
+            if now - mtime > SESSION_MAX_AGE:
+                shutil.rmtree(path)
+                purged += 1
+        except OSError:
+            continue
+    return purged
 
 
 def create_project(session_id, name):
@@ -71,6 +119,7 @@ def get_file_content(session_id, filepath):
 
 def create_file(session_id, filepath, content=''):
     session_dir = get_session_dir(session_id)
+    _check_limits(session_dir, content)
     full_path = _safe_path(session_dir, filepath)
     if os.path.exists(full_path):
         raise FileExistsError(f'File already exists: {filepath}')
@@ -87,6 +136,7 @@ def create_file(session_id, filepath, content=''):
 
 def update_file_content(session_id, filepath, content):
     session_dir = get_session_dir(session_id)
+    _check_limits(session_dir, content, old_file_path=filepath)
     full_path = _safe_path(session_dir, filepath)
     if not os.path.isfile(full_path):
         raise FileNotFoundError(f'File not found: {filepath}')
