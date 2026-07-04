@@ -30,6 +30,8 @@ export default function App() {
     cimport_from_pyx: false,
     auto_cpdef: true,
     lto: true,
+    infer_noexcept: true,
+    python_subclassing: false,
   })
   const [statusMessage, setStatusMessage] = useState('')
   const [statusType, setStatusType] = useState<'info' | 'error' | 'success'>('info')

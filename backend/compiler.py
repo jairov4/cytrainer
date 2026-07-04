@@ -9,6 +9,7 @@ KNOWN_DIRECTIVES = frozenset({
     'cdivision', 'embedsignature', 'profile', 'linetrace',
     'nonecheck', 'optimize.use_switch', 'cfunc_declarations',
     'np_pythran', 'fast_gil', 'ccomplex', 'nogil',
+    'infer_noexcept', 'python_subclassing',
 })
 
 

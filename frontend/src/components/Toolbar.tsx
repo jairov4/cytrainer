@@ -14,6 +14,8 @@ const DIRECTIVES = [
   { key: 'cimport_from_pyx', label: 'cimport_from_pyx' },
   { key: 'auto_cpdef', label: 'auto_cpdef' },
   { key: 'lto', label: 'lto' },
+  { key: 'infer_noexcept', label: 'infer_noexcept' },
+  { key: 'python_subclassing', label: 'python_subclassing' },
 ] as const
 
 export default function Toolbar({
