@@ -154,6 +154,28 @@ html, body, #root {
   letter-spacing: 0;
 }
 
+.panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.panel-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  line-height: 1;
+  padding: 1px 4px;
+  border-radius: 3px;
+  color: #888;
+}
+
+.panel-btn:hover {
+  background: #444;
+  color: #d4d4d4;
+}
+
 /* ── Editor panel ── */
 .editor-panel {
   background: #1e1e1e;

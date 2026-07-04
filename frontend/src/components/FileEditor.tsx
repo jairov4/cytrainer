@@ -3,7 +3,7 @@ import { EditorView, basicSetup } from 'codemirror'
 import { python } from '@codemirror/lang-python'
 import { cpp } from '@codemirror/lang-cpp'
 import { oneDark } from '@codemirror/theme-one-dark'
-import { search, searchKeymap } from '@codemirror/search'
+import { search, searchKeymap, openSearchPanel } from '@codemirror/search'
 import { keymap } from '@codemirror/view'
 
 interface FileEditorProps {
@@ -76,10 +76,21 @@ export default function FileEditor({ filename, content, onChange }: FileEditorPr
   return (
     <div className="panel editor-panel">
       <div className="panel-header">
-        {filename || 'No file selected'}
-        {filename && (
-          <span className="panel-badge">editor</span>
-        )}
+        <span>{filename || 'No file selected'}</span>
+        <span className="panel-header-actions">
+          {filename && (
+            <button
+              className="panel-btn"
+              title="Search (Ctrl+F)"
+              onClick={() => viewRef.current && openSearchPanel(viewRef.current)}
+            >
+              🔍
+            </button>
+          )}
+          {filename && (
+            <span className="panel-badge">editor</span>
+          )}
+        </span>
       </div>
       <div ref={containerRef} className="cm-container" />
     </div>
