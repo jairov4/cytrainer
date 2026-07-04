@@ -1,9 +1,8 @@
 import os
 import uuid
-from flask import Flask, request, jsonify, session, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory
 
 app = Flask(__name__, static_folder='static')
-app.secret_key = os.environ.get('SECRET_KEY', uuid.uuid4().hex)
 
 from project import (
     create_project, get_project_info, list_files,
@@ -15,9 +14,23 @@ from compiler import compile_project
 
 @app.before_request
 def ensure_session():
-    if 'session_id' not in session:
-        session['session_id'] = str(uuid.uuid4())
-    get_session_dir(session['session_id'])
+    sid = request.cookies.get('session_id')
+    if not sid:
+        sid = str(uuid.uuid4())
+    get_session_dir(sid)
+    request.current_session_id = sid
+
+
+@app.after_request
+def persist_session_cookie(response):
+    sid = getattr(request, 'current_session_id', None)
+    if sid:
+        response.set_cookie('session_id', sid, max_age=365*24*3600)
+    return response
+
+
+def sid():
+    return request.current_session_id
 
 
 @app.route('/api/project', methods=['GET', 'POST'])
@@ -25,15 +38,15 @@ def handle_project():
     if request.method == 'POST':
         data = request.get_json()
         name = data.get('name', 'Untitled')
-        result = create_project(session['session_id'], name)
+        result = create_project(sid(), name)
         return jsonify(result)
-    info = get_project_info(session['session_id'])
+    info = get_project_info(sid())
     return jsonify(info)
 
 
 @app.route('/api/files', methods=['GET'])
 def handle_list_files():
-    files = list_files(session['session_id'])
+    files = list_files(sid())
     return jsonify({'files': files})
 
 
@@ -45,7 +58,7 @@ def handle_create_file():
         return jsonify({'error': 'Path is required'}), 400
     content = data.get('content', '')
     try:
-        result = create_file(session['session_id'], path, content)
+        result = create_file(sid(), path, content)
         return jsonify(result), 201
     except FileExistsError as e:
         return jsonify({'error': str(e)}), 409
@@ -56,7 +69,7 @@ def handle_create_file():
 @app.route('/api/files/<path:filepath>', methods=['GET'])
 def handle_get_file(filepath):
     try:
-        content = get_file_content(session['session_id'], filepath)
+        content = get_file_content(sid(), filepath)
         return jsonify({'content': content})
     except FileNotFoundError as e:
         return jsonify({'error': str(e)}), 404
@@ -69,7 +82,7 @@ def handle_update_file(filepath):
     data = request.get_json()
     content = data.get('content', '')
     try:
-        update_file_content(session['session_id'], filepath, content)
+        update_file_content(sid(), filepath, content)
         return jsonify({'ok': True})
     except FileNotFoundError as e:
         return jsonify({'error': str(e)}), 404
@@ -80,7 +93,7 @@ def handle_update_file(filepath):
 @app.route('/api/files/<path:filepath>', methods=['DELETE'])
 def handle_delete_file(filepath):
     try:
-        delete_file(session['session_id'], filepath)
+        delete_file(sid(), filepath)
         return jsonify({'ok': True})
     except FileNotFoundError as e:
         return jsonify({'error': str(e)}), 404
@@ -94,7 +107,7 @@ def handle_compile():
     cplus = data.get('cplus', False)
     directives = data.get('directives', {})
     try:
-        result = compile_project(session['session_id'], cplus=cplus, directives=directives)
+        result = compile_project(sid(), cplus=cplus, directives=directives)
         return jsonify(result)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
